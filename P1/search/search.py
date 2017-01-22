@@ -89,15 +89,12 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     nextNodes = util.Stack()
     initialState = problem.getStartState()
-    sp = initialState ,[]    #Seve the path in component 1
-    nextNodes.push(sp)
+    nextNodes.push((initialState ,[]))      #Seve the path in component 1
     visited = set()
     visited.add(initialState)
     while not nextNodes.isEmpty():
         node = nextNodes.pop()
-        #print node
-        path = node[1]
-        node = node[0]
+        node, path = node
         if problem.isGoalState(node):
             return path
 

@@ -288,6 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.startState = (self.startingPosition,self.corners)     #Tuple with positions of non reached corners ( tuple is hashable )
+        self.costFn = lambda state: 1
 
     def getStartState(self):
         """
@@ -295,6 +297,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        return self.startState
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +305,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        return not state[1]             #If there are no more corners to reach == dictionary empty
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -325,6 +329,16 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            (x,y),corners = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPos = (nextx, nexty)
+                corners = filter(lambda corner: corner != nextPos ,corners)  #Remove corner if the nextPos is one of them
+                nextState = nextPos,corners
+                cost = self.costFn(nextState)                                #Maybe change to lower cost when a new corner is reached
+                successors.append( ( nextState, action, cost) )
+
 
         self._expanded += 1 # DO NOT CHANGE
         return successors

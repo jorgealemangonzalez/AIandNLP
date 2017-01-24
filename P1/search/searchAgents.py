@@ -478,10 +478,22 @@ def foodHeuristic(state, problem):
     """h1: Trying with the manhattan distance to nearest food"""
     foodList = foodGrid.asList()
     minmht = 100000000000
+    minmhtFood = 0
     for food in foodList:
         minmht = min(minmht, mhtDist(food,position))
-    return minmht + len(foodList)-1 #FoodList-1 : At list 1 move is needed to reach each food
-    """h1_END """
+    for food1 in foodList:
+        for food2 in foodList:
+            if food1 != food2:
+                minmhtFood = max(minmhtFood, mhtDist(food1, food2))
+    return minmht + minmhtFood #FoodList-1 : At list 1 move is needed to reach each food
+    """h1_END """                   #Maybe add minimum distance between two adjacent food despite len(foodList)-1
+
+    """h2: manhattan distance connecting all food"""
+    foodList = foodGrid.asList()
+    minmht = 100000000000
+    for food in foodList:
+        minmht = min(minmht, mhtDist(food, position))
+
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):

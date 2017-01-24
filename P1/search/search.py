@@ -155,7 +155,7 @@ def uniformCostSearch(problem):
             if not visited.__contains__(nextState):
                 newpath = path[:]
                 newpath.append(action)
-                nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost)
+                nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost) #nextSate with cost , priority with heurisics
                 visited.add(nextState)
 
     util.raiseNotDefined()
@@ -167,9 +167,37 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+def parsePos(variable):
+    return 10*variable[0]+variable[1]
+
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+
+    nextNodes = util.PriorityQueue()
+    initialState = problem.getStartState()
+    nextNodes.push((initialState,0,[]),0) #Save the cost and the actions
+    visited = set()
+    visited.add(initialState)
+    costpath  = {}
+    costpath[parsePos(initialState)] = 0 
+
+    while not nextNodes.isEmpty():
+        node, cost, path = nextNodes.pop()
+        if problem.isGoalState(node):
+            return path
+        for successor in problem.getSuccessors(node):
+            nextState, action, addedcost = successor
+            tmpcost = cost + addedcost
+            if not visited.__contains__(nextState) or tmpcost < costpath[parsePos(nextState)]:
+                costpath[parsePos(nextState)] = tmpcost
+                newpath = path[:]
+                newpath.append(action)
+                nextNodes.push((nextState,tmpcost, newpath),tmpcost + heuristic(nextState,problem)) #nextSate with cost , priority with heurisics
+                #print tmpcost
+                visited.add(nextState)
+
     util.raiseNotDefined()
 
 

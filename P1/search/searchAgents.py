@@ -480,6 +480,7 @@ def foodHeuristic(state, problem):
     minmht = 100000000000
     for food in foodList:
         minmht = min(minmht, mhtDist(food,position))
+    return minmht
     """h1_END """
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

@@ -72,6 +72,28 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+def search(problem,container):
+    nextNodes = container
+    initialState = problem.getStartState()
+    nextNodes.push((initialState ,[]))      #Seve the path in component 1
+    closed = set()
+    while not nextNodes.isEmpty():
+        node = nextNodes.pop()
+        node, path = node
+        if problem.isGoalState(node):
+            return path
+
+        if node in closed:
+            continue
+        else:
+            closed.add(node)
+
+        for successor in problem.getSuccessors(node):
+            nextState, action, cost = successor
+            newpath = path[:]
+            newpath.append(action)
+            nextNodes.push((nextState,newpath))
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,54 +109,16 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    nextNodes = util.Stack()
-    initialState = problem.getStartState()
-    nextNodes.push((initialState ,[]))      #Seve the path in component 1
-    visited = set()
-    visited.add(initialState)
-    while not nextNodes.isEmpty():
-        node = nextNodes.pop()
-        node, path = node
-        if problem.isGoalState(node):
-            return path
-
-        for successor in problem.getSuccessors(node):
-            nextState, action, cost = successor
-            if not visited.__contains__(nextState):
-                newpath = path[:]
-                newpath.append(action)
-                nextNodes.push((nextState,newpath))
-                visited.add(nextState)
-
+    return search(problem,util.Stack())
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    nextNodes = util.Queue()
-    initialState = problem.getStartState()
-    sp = initialState ,[]    #Seve the path in component 1
-    nextNodes.push(sp)
-    visited = set()
-    visited.add(initialState)
-    while not nextNodes.isEmpty():
-        node = nextNodes.pop()
-        #print node
-        path = node[1]
-        node = node[0]
-        if problem.isGoalState(node):
-            return path
-
-        for successor in problem.getSuccessors(node):
-            nextState, action, cost = successor
-            if not visited.__contains__(nextState):
-                newpath = path[:]
-                newpath.append(action)
-                nextNodes.push((nextState,newpath))
-                visited.add(nextState)
+    return search(problem,util.Queue())
 
     util.raiseNotDefined()
-  
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -143,20 +127,22 @@ def uniformCostSearch(problem):
     nextNodes = util.PriorityQueue()
     initialState = problem.getStartState()
     nextNodes.push((initialState,0,[]),0) #Save the cost and the actions
-    visited = set()
-    visited.add(initialState)
+    closed = set()
 
     while not nextNodes.isEmpty():
         node, cost, path = nextNodes.pop()
+        if node in closed:
+            continue
+        else:
+            closed.add(node)
+
         if problem.isGoalState(node):
             return path
         for successor in problem.getSuccessors(node):
             nextState, action, addedcost = successor
-            if not visited.__contains__(nextState):
-                newpath = path[:]
-                newpath.append(action)
-                nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost) #nextSate with cost , priority with heurisics
-                visited.add(nextState)
+            newpath = path[:]
+            newpath.append(action)
+            nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost) #nextSate with cost , priority with heurisics
 
     util.raiseNotDefined()
 
@@ -173,21 +159,23 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     nextNodes = util.PriorityQueue()
     initialState = problem.getStartState()
-    nextNodes.push((initialState, 0, []), 0)  # Save the cost and the actions
-    visited = set()
-    visited.add(initialState)
+    nextNodes.push((initialState,0,[]),0) #Save the cost and the actions
+    closed = set()
 
     while not nextNodes.isEmpty():
         node, cost, path = nextNodes.pop()
+        if node in closed:
+            continue
+        else:
+            closed.add(node)
+
         if problem.isGoalState(node):
             return path
         for successor in problem.getSuccessors(node):
             nextState, action, addedcost = successor
-            if not visited.__contains__(nextState):
-                newpath = path[:]
-                newpath.append(action)
-                nextNodes.push((nextState, cost + addedcost, newpath), cost + addedcost + heuristic(nextState, problem))
-                visited.add(nextState)
+            newpath = path[:]
+            newpath.append(action)
+            nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost+heuristic(nextState,problem)) #nextSate with cost , priority with heurisics
 
     util.raiseNotDefined()
 

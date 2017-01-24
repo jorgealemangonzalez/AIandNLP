@@ -496,7 +496,7 @@ def foodHeuristic(state, problem):
         mhtDistance = mhtDist(food, position)
         if minmht < mhtDistance:
             minmht = 0      #BAD , continue here
-
+    """h2_END"""
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):

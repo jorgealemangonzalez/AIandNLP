@@ -468,8 +468,19 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    def mhtDist(p1 , p2):
+        return abs(p1[0]-p2[0])+abs(p1[1]-p2[1])
 
+
+    if problem.isGoalState(state):
+        return 0    #Goal States should return 0
+
+    """h1: Trying with the manhattan distance to nearest food"""
+    foodList = foodGrid.asList()
+    minmht = 100000000000
+    for food in foodList:
+        minmht = min(minmht, mhtDist(food,position))
+    """h1_END """
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):

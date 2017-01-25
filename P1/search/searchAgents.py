@@ -356,6 +356,8 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def mhtDist(p1 , p2):
+        return abs(p1[0]-p2[0])+abs(p1[1]-p2[1])
 
 def cornersHeuristic(state, problem):
     """
@@ -372,10 +374,21 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    pos = state[0]
+    if problem.isGoalState(state):
+        return 0    #Goal States should return 0
+    minmht = 100000000
+    minmhtCorn = 0
+    """if visited[pos] != -1  
+        for corner in corners:
+            if pos == corner:
+                visited[pos] = -1"""
+    for corner in corners:
+        minmht = min(minmht,mhtDist(pos,corner))
+    return minmht 
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
 
+ 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
@@ -489,13 +502,13 @@ def foodHeuristic(state, problem):
     """h1_END """
 
     """h2: manhattan distance connecting all food"""
-    foodList = foodGrid.asList()
+    """foodList = foodGrid.asList()
     minmht = 100000000000
     minFood = None
     for food in foodList:
         mhtDistance = mhtDist(food, position)
         if minmht < mhtDistance:
-            minmht = 0      #BAD , continue here
+            minmht = 0      #BAD , continue here"""
     """h2_END"""
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

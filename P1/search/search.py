@@ -161,6 +161,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     initialState = problem.getStartState()
     nextNodes.push((initialState,0,[]),0) #Save the cost and the actions
     closed = set()
+    costmap = {}
+    costmap[initialState] = 0
 
     while not nextNodes.isEmpty():
         node, cost, path = nextNodes.pop()
@@ -173,9 +175,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             return path
         for successor in problem.getSuccessors(node):
             nextState, action, addedcost = successor
-            newpath = path[:]
-            newpath.append(action)
-            nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost+heuristic(nextState,problem)) #nextSate with cost , priority with heurisics
+            tmpcost = cost + addedcost
+            if not closed.__contains__(nextState) or tmpcost < costmap[nextState]:
+                costmap[nextState] = tmpcost
+                newpath = path[:]
+                newpath.append(action)
+                nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost+heuristic(nextState,problem)) #nextSate with cost , priority with heurisics
 
     util.raiseNotDefined()
 

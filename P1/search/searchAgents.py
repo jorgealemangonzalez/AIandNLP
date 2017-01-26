@@ -384,7 +384,7 @@ def cornersHeuristic(state, problem):
 
     #correcta pero expande demasiados nodos
     #first the nearest food
-    for food in foodList:
+    """for food in foodList:
         a = mhtDist(pos,food)
         if minmht > a:
             minmht = a
@@ -393,7 +393,19 @@ def cornersHeuristic(state, problem):
         b = mhtDist(actualfood,corner)
         if minmhtcorn > b:
             minmhtcorn = b
-            nextcorn = corner
+            nextcorn = corner"""
+
+    minmht = 100000000000
+    minmhtFood = 0
+    for food in foodList:
+        minmht = min(minmht, mhtDist(food,pos))
+    for food1 in foodList:
+        for food2 in foodList:
+            if food1 != food2:
+                minmhtFood = max(minmhtFood, mhtDist(food1, food2))
+    return minmht + minmhtFood #FoodList-1 : At list 1 move is needed to reach each food
+
+
 
     #expande menos nodos pero es inconsistente         
     """for food in foodList:
@@ -401,7 +413,7 @@ def cornersHeuristic(state, problem):
     for corner in corners:
         minmhtcorn = min(minmhtcorn,mhtDist(pos,corner))"""
 
-    return minmht + minmhtcorn
+    #return minmht + minmhtcorn
  
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -547,13 +559,13 @@ class ClosestDotSearchAgent(SearchAgent):
         gameState.
         """
         # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
+        startPosition = gameState.getPacmanPosition() #15,1
+        food = gameState.getFood() #grid of food
+        walls = gameState.getWalls() # grid of walls (true = walls)
         problem = AnyFoodSearchProblem(gameState)
-
+        pos = startPosition
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -587,9 +599,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]        
 
 def mazeDistance(point1, point2, gameState):
     """

@@ -373,27 +373,9 @@ def cornersHeuristic(state, problem):
     admissible (as well as consistent).
     """
     pos, foodList = state
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+
     if problem.isGoalState(state):
         return 0    #Goal States should return 0
-    minmht = 100000000
-    minmhtcorn = 1000000
-    cornerselected = set()
-
-
-    #correcta pero expande demasiados nodos
-    #first the nearest food
-    """for food in foodList:
-        a = mhtDist(pos,food)
-        if minmht > a:
-            minmht = a
-            actualfood = food
-    for corner in corners:
-        b = mhtDist(actualfood,corner)
-        if minmhtcorn > b:
-            minmhtcorn = b
-            nextcorn = corner"""
 
     minmht = 100000000000
     minmhtFood = 0
@@ -403,17 +385,7 @@ def cornersHeuristic(state, problem):
         for food2 in foodList:
             if food1 != food2:
                 minmhtFood = max(minmhtFood, mhtDist(food1, food2))
-    return minmht + minmhtFood #FoodList-1 : At list 1 move is needed to reach each food
-
-
-
-    #expande menos nodos pero es inconsistente         
-    """for food in foodList:
-        minmht = min(minmht,mhtDist(pos,food))
-    for corner in corners:
-        minmhtcorn = min(minmhtcorn,mhtDist(pos,corner))"""
-
-    #return minmht + minmhtcorn
+    return minmht + minmhtFood
  
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -507,35 +479,71 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    def mhtDist(p1 , p2):
-        return abs(p1[0]-p2[0])+abs(p1[1]-p2[1])
-
 
     if problem.isGoalState(state):
         return 0    #Goal States should return 0
 
     """h1: Trying with the manhattan distance to nearest food"""
+
     foodList = foodGrid.asList()
     minmht = 100000000000
     minmhtFood = 0
     for food in foodList:
-        minmht = min(minmht, mhtDist(food,position))
+        minmht = min(minmht, util.manhattanDistance(food,position))
     for food1 in foodList:
         for food2 in foodList:
             if food1 != food2:
-                minmhtFood = max(minmhtFood, mhtDist(food1, food2))
-    return minmht + minmhtFood #FoodList-1 : At list 1 move is needed to reach each food
-    """h1_END """
+                minmhtFood = max(minmhtFood, util.manhattanDistance(food1, food2))
+    return minmht + minmhtFood
 
-    """h2: manhattan distance connecting all food"""
-    """foodList = foodGrid.asList()
+    """h1_END """
+    """h1': same but saving to not repeat the food min search gets 10000 nodes expanded instead of 7200 as the other"""
+    """
+
+    foodList = foodGrid.asList()
     minmht = 100000000000
-    minFood = None
+    minmhtFood = 0
     for food in foodList:
-        mhtDistance = mhtDist(food, position)
-        if minmht < mhtDistance:
-            minmht = 0      #BAD , continue here"""
-    """h2_END"""
+        minmht = min(minmht, util.manhattanDistance(food,position))
+
+    try:
+        value = problem.heuristicInfo[len(foodList)]
+        print "try-"+str(len(foodList))+" "+str(value)
+        return problem.heuristicInfo[len(foodList)] + minmht
+    except Exception:
+        for food1 in foodList:
+            for food2 in foodList:
+                if food1 != food2:
+                    minmhtFood = max(minmhtFood, util.manhattanDistance(food1, food2))
+
+        problem.heuristicInfo[len(foodList)] = minmhtFood
+        print "no-"+str(len(foodList))+" "+str(minmhtFood)
+        return minmht + minmhtFood
+
+    """
+    """h2: manhattan distance connecting all food"""
+
+    """
+    def getMin(foodList,initPos):
+        minmht = 100000000000
+        minFood = None
+        for food in foodList:
+            mhtDis = util.manhattanDistance(food, initPos)
+            if mhtDis < minmht:
+                minmht = mhtDis
+                minFood = food
+        return (minFood,minmht)
+
+    foodList = foodGrid.asList()
+    acumMht = 0
+    initPos = position
+    while len(foodList) != 0:
+        initPos , minDis = getMin(foodList,initPos)
+        acumMht = acumMht + minDis
+        foodList.remove(initPos)
+
+    return acumMht
+    """
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):

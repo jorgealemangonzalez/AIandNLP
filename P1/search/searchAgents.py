@@ -356,9 +356,6 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-def mhtDist(p1 , p2):
-        return abs(p1[0]-p2[0])+abs(p1[1]-p2[1])
-
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -380,11 +377,11 @@ def cornersHeuristic(state, problem):
     minmht = 100000000000
     minmhtFood = 0
     for food in foodList:
-        minmht = min(minmht, mhtDist(food,pos))
+        minmht = min(minmht, util.manhattanDistance(food,pos))  # distance from pos to nearest food
     for food1 in foodList:
         for food2 in foodList:
             if food1 != food2:
-                minmhtFood = max(minmhtFood, mhtDist(food1, food2))
+                minmhtFood = max(minmhtFood, util.manhattanDistance(food1, food2)) #max distance from 2 diferent foods
     return minmht + minmhtFood
  
 class AStarCornersAgent(SearchAgent):
@@ -496,54 +493,6 @@ def foodHeuristic(state, problem):
                 minmhtFood = max(minmhtFood, util.manhattanDistance(food1, food2))
     return minmht + minmhtFood
 
-    """h1_END """
-    """h1': same but saving to not repeat the food min search gets 10000 nodes expanded instead of 7200 as the other"""
-    """
-
-    foodList = foodGrid.asList()
-    minmht = 100000000000
-    minmhtFood = 0
-    for food in foodList:
-        minmht = min(minmht, util.manhattanDistance(food,position))
-
-    try:
-        value = problem.heuristicInfo[len(foodList)]
-        print "try-"+str(len(foodList))+" "+str(value)
-        return problem.heuristicInfo[len(foodList)] + minmht
-    except Exception:
-        for food1 in foodList:
-            for food2 in foodList:
-                if food1 != food2:
-                    minmhtFood = max(minmhtFood, util.manhattanDistance(food1, food2))
-
-        problem.heuristicInfo[len(foodList)] = minmhtFood
-        print "no-"+str(len(foodList))+" "+str(minmhtFood)
-        return minmht + minmhtFood
-
-    """
-    """h2: manhattan distance connecting all food"""
-
-    """
-    def getMin(foodList,initPos):
-        minmht = 100000000000
-        minFood = None
-        for food in foodList:
-            mhtDis = util.manhattanDistance(food, initPos)
-            if mhtDis < minmht:
-                minmht = mhtDis
-                minFood = food
-        return (minFood,minmht)
-
-    foodList = foodGrid.asList()
-    acumMht = 0
-    initPos = position
-    while len(foodList) != 0:
-        initPos , minDis = getMin(foodList,initPos)
-        acumMht = acumMht + minDis
-        foodList.remove(initPos)
-
-    return acumMht
-    """
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):

@@ -142,7 +142,7 @@ def uniformCostSearch(problem):
             nextState, action, addedcost = successor
             newpath = path[:]
             newpath.append(action)
-            nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost) #nextSate with cost , priority with heurisics
+            nextNodes.push((nextState,cost+addedcost, newpath),cost+addedcost) #nextSate with cost , priority with cost
 
     util.raiseNotDefined()
 
@@ -161,12 +161,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     initialState = problem.getStartState()
     nextNodes.push((initialState,0,[]),0) #Save the cost and the actions
     closed = set()
-    costmap = {}
+    costmap = {} 
     costmap[initialState] = 0
 
     while not nextNodes.isEmpty():
         node, cost, path = nextNodes.pop()
-        if node in closed:
+        if node in closed: #if visited continue
             continue
         else:
             closed.add(node)
@@ -176,7 +176,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         for successor in problem.getSuccessors(node):
             nextState, action, addedcost = successor
             tmpcost = cost + addedcost
-            if not closed.__contains__(nextState) or tmpcost < costmap[nextState]:
+            if not closed.__contains__(nextState) or tmpcost < costmap[nextState]: #compare if not visited but we find a better way, store it
                 costmap[nextState] = tmpcost
                 newpath = path[:]
                 newpath.append(action)

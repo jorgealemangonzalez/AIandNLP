@@ -136,29 +136,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return self.evaluationFunction(state)
 
             for action in state.getLegalActions(0):
-                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth-1, 1))
+                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth-1))
 
             return bestValue
 
 
-        def MIN(state, depth, ghost):
-            bestValue = 1000000000
-            if ghost >= state.getNumAgents():
-                return MAX(state,depth-1)
+        def MIN(state, depth):
 
-            if depth <= 0 or state.isLose() or state.isWin():
-                return self.evaluationFunction(state)
+            def ghostsMoves(ghostState,ghost):
+                bestValue = 1000000000
+                if depth <= 0 or ghostState.isLose() or ghostState.isWin():
+                    return self.evaluationFunction(ghostState)
+                if ghost >= state.getNumAgents():
+                    return MAX(ghostState, depth - 1)
+                for action in state.getLegalActions(ghost):
+                    bestValue = min(bestValue, ghostsMoves(ghostState.generateSuccessor(ghost, action), ghost + 1))
+                return bestValue
 
-            for action in state.getLegalActions(ghost):
-                bestValue = min(bestValue,MIN(state.generateSuccessor(ghost,action),depth,ghost+1))
-
-            return bestValue
+            return ghostsMoves(state,1)
 
         callDepth = self.depth*2
         bestAction = None
         bestValue = -100000000
         for action in gameState.getLegalActions(0):
-            value = MIN(gameState.generateSuccessor(0,action),callDepth-1,1)
+            value = MIN(gameState.generateSuccessor(0,action),callDepth-1)
             if bestValue < value:
                 bestValue = value
                 bestAction = action

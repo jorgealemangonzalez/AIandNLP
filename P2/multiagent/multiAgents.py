@@ -75,7 +75,6 @@ class ReflexAgent(Agent):
 
 
         "*** YOUR CODE HERE ***"
-        capsules = successorGameState.getCapsules()
         FoodList = newFood.asList()
         ghostList = currentGameState.getGhostPositions()
         score= 0
@@ -86,11 +85,10 @@ class ReflexAgent(Agent):
         for ghostPos in ghostList:
           minGhost = min(minGhost,abs(util.manhattanDistance(newPos,ghostPos)))
 
-        print action
         score = (minGhost/minFood) + successorGameState.getScore() 
 
         #print ("ming" ,minGhost," and f " , minFood , "and  division" , minGhost/minFood  , " and gestscor " , successorGameState.getScore, " and total is "  , score)  
-        print score
+        #print score
         return score
 
 
@@ -199,7 +197,52 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        def MAX(state, depth,alpha,beta):
+            bestValue = -1000000000
+            if depth <= 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            for action in state.getLegalActions(0):
+                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth-1,alpha,beta))
+                if bestValue >= beta:
+                    return bestValue
+                alpha = max(alpha,bestValue)
+
+
+            return bestValue
+
+
+        def MIN(state, depth,alpha,beta):
+
+            def ghostsMoves(ghostState,ghost,alpha,beta):
+                bestValue = 1000000000
+                if depth <= 0 or ghostState.isLose() or ghostState.isWin():
+                    return self.evaluationFunction(ghostState)
+                if ghost >= state.getNumAgents():
+                    return MAX(ghostState, depth - 1,alpha,beta)
+                for action in state.getLegalActions(ghost):
+                    bestValue = min(bestValue, ghostsMoves(ghostState.generateSuccessor(ghost, action), ghost + 1,alpha,beta))
+                    if bestValue <= alpha:
+                        return bestValue
+                    beta = min(beta,bestValue)
+
+                return bestValue
+
+            return ghostsMoves(state,1,alpha,beta)
+
+        """To obtain the action without passing it in all min and max calls"""
+        callDepth = self.depth * 2  # The depth is defined by 1 move of each agent : min and max. 
+        bestAction = None
+        bestValue = -100000000
+        for action in gameState.getLegalActions(0):
+            value = MIN(gameState.generateSuccessor(0,action),callDepth,-1000000000000,100000000000)
+            if bestValue < value:
+                bestValue = value
+                bestAction = action
+
+        return bestAction
         util.raiseNotDefined()
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """

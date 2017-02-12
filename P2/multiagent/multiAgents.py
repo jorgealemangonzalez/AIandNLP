@@ -176,7 +176,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             return ghostsMoves(state,1)
 
-        callDepth = self.depth*2
+        """To obtain the action without passing it in all min and max calls"""
+        callDepth = self.depth * 2  # The depth is defined by 1 move of each agent : min and max. 
         bestAction = None
         bestValue = -100000000
         for action in gameState.getLegalActions(0):
@@ -213,6 +214,43 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
+
+        def MAX(state, depth):
+            bestValue = -1000000000
+            if depth <= 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            for action in state.getLegalActions(0):
+                bestValue = max(bestValue, MIN(state.generateSuccessor(0, action), depth - 1))
+
+            return bestValue
+
+        def MIN(state, depth):
+
+            def ghostsMoves(ghostState, ghost):
+                bestValue = 1000000000
+                if depth <= 0 or ghostState.isLose() or ghostState.isWin():
+                    return self.evaluationFunction(ghostState)
+                if ghost >= state.getNumAgents():
+                    return MAX(ghostState, depth - 1)
+                average = 0.0
+                legalMoves = state.getLegalActions(ghost)
+                for action in legalMoves:
+                    average += (1.0/len(legalMoves)) * ghostsMoves(ghostState.generateSuccessor(ghost, action), ghost + 1)
+                return average
+
+            return ghostsMoves(state, 1)
+        """To obtain the action without passing it in all min and max calls"""
+        callDepth = self.depth * 2  #The depth is defined by 1 move of each agent : min and max.
+        bestAction = None
+        bestValue = -100000000
+        for action in gameState.getLegalActions(0):
+            value = MIN(gameState.generateSuccessor(0, action), callDepth - 1)
+            if bestValue < value:
+                bestValue = value
+                bestAction = action
+
+        return bestAction
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):

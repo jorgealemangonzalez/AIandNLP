@@ -207,8 +207,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 return self.evaluationFunction(state)
 
             for action in state.getLegalActions(0):
-                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth,alpha,beta,state.getNumAgents()-1)) #pasamos indice ultimo ghost
-                if bestValue >= beta:
+                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth,alpha,beta,1)) 
+                if bestValue > beta:
                     break
                 alpha = max(alpha,bestValue)
             return bestValue
@@ -219,18 +219,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             if depth <= 0 or state.isLose() or state.isWin():
                 return self.evaluationFunction(state)
             for action in state.getLegalActions(ghostindex):
-                if ghostindex >= (state.getNumAgents()-1): #si es ultimo fantasma, disminuimos profundidad i max de los estados 
+                if ghostindex >= (state.getNumAgents()-1): #si es ultimo , disminuimos profundidad i max de los estados 
                     bestValue = min(bestValue,MAX(state.generateSuccessor(ghostindex,action),depth-1,alpha,beta))#maximizamos        
                 else: # es un fantasma cualquiera, por lo tanto minimizamos
                     bestValue = min(bestValue, MIN(state.generateSuccessor(ghostindex, action),depth,alpha,beta, ghostindex + 1))#seguimos a la misma profundidad
-                if bestValue <= alpha:
+                if bestValue < alpha: #podamos
                         break
                 beta = min(beta,bestValue)
             return bestValue
 
 
         """To obtain the action without passing it in all min and max calls"""
-        callDepth = self.depth * 2  # The depth is defined by 1 move of each agent : min and max. 
         bestAction = None
         bestValue = -100000000
         alpha = -1000000000000000000000
@@ -241,14 +240,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 bestValue = value
                 bestAction = action
             alpha = max(alpha,bestValue)
-            if bestValue >= beta: #if we see a greater value than our beta,  we prune 
+            if bestValue > beta: #if we see a greater value than our beta,  we prune 
                 break
         return bestAction
-        util.raiseNotDefined()
-
-
-
-
         util.raiseNotDefined()
 
 
@@ -312,6 +306,29 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    pacmanActions = currentGameState.getLegalPacmanActions()
+    pacmanPos = currentGameState.getPacmanPosition()
+    foodList = currentGameState.getFood().asList()
+    ghostList = currentGameState.getGhostPositions()
+    capsules = currentGameState.getCapsules()
+
+
+    score = 0.0
+    minFood = 99999999
+    minGhost = 99999999
+    minCapsule = 99999999
+
+    for foodPos in foodList:
+        minFood = min(minFood,abs(util.manhattanDistance(pacmanPos,foodPos))) #distancia minima desde la proxima posicion al food mas cercano
+    for ghostPos in ghostList:
+        minGhost = min(minGhost,abs(util.manhattanDistance(pacmanPos,ghostPos)))
+    for capsule in capsules:
+        minCapsule = min(minCapsule,abs(util.manhattanDistance(pacmanPos,capsule))) 
+
+    score = (minGhost/minFood) + currentGameState.getScore() + (1/minCapsule)
+
+    return score
+
     util.raiseNotDefined()
 
 # Abbreviation

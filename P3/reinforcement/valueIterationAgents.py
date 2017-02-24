@@ -52,8 +52,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           for state in self.mdp.getStates():
             maxV = -9999999
             for action in self.mdp.getPossibleActions(state): #compute all the posible actions of the stats
-              totalvalue = self.getQValue(state,action) #get the Qvalue of an state and a specific action
-              maxV = max(totalvalue,maxV)
+              maxV = max(self.getQValue(state,action),maxV) #get the Qvalue of an state and a specific action
             if maxV == -9999999:
               maxV = 0
             tmpValue[state]=maxV #store the value in out temporal array of values
@@ -98,9 +97,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         #we need to obtain the best policy,
         if self.mdp.isTerminal(state):
           return None
-        for action in self.mdp.getPossibleActions(state): #for all the actions of a state
-          qvalue = self.computeQValueFromValues(state,action) #calculate the Qvalue of an specific action
-          if qvalue > value: #store the best qvale and the action that makes it
+        for action in self.mdp.getPossibleActions(state): #for all the actions o
+          qvalue = self.getQValue(state,action)
+          if qvalue > value:
             bestAction = action
             value = qvalue
         return bestAction

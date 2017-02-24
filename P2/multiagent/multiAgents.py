@@ -72,9 +72,35 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        capsules = currentGameState.getCapsules()
+
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        FoodList = newFood.asList()
+        ghostList = currentGameState.getGhostPositions()
+        score= 0
+        minFood = 9999999
+        minCapsule = 999999999
+        minGhost = 9999999
+
+        for foodPos in FoodList:
+          minFood = min(minFood,abs(util.manhattanDistance(newPos,foodPos))) #distancia minima desde la proxima posicion al food mas cercano
+        for ghostPos in ghostList:
+          minGhost = min(minGhost,abs(util.manhattanDistance(newPos,ghostPos)))
+        for capsule in capsules:
+            minCapsule = min(minCapsule,abs(util.manhattanDistance(newPos,capsule))) 
+        if minCapsule < minGhost:
+            score += ((minGhost/minFood)/10) 
+        if not minCapsule:
+            minCapsule = 1
+        score += (minGhost/minFood) + successorGameState.getScore() + (1/minCapsule)
+
+
+        return score
+
+
+
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -177,8 +203,55 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
+
         "*** YOUR CODE HERE ***"
+
+        #alpha --> for maximizer
+        #beta --> for minimizer
+        def MAX(state, depth,alpha,beta): #valor maximo!
+            bestValue = -1000000000
+            if depth <= 0 or state.isWin() or state.isLose(): #si es terminal o final
+                return self.evaluationFunction(state)
+
+            for action in state.getLegalActions(0):
+                bestValue = max(bestValue,MIN(state.generateSuccessor(0,action), depth,alpha,beta,1))  #calculamos Min de todos los sucesores
+                if bestValue > beta: #cortamos rama
+                    break
+                alpha = max(alpha,bestValue) #actualizamos valor de alpha 
+            return bestValue
+
+
+        def MIN(state, depth,alpha,beta,ghostindex): #valor minimo
+            bestValue = 1000000000
+            if depth <= 0 or state.isLose() or state.isWin():
+                return self.evaluationFunction(state)
+            for action in state.getLegalActions(ghostindex): #todas las acciones del indice especificado
+                if ghostindex == (state.getNumAgents()-1): #si es ultimo , disminuimos profundidad i max de los estados 
+                    bestValue = min(bestValue,MAX(state.generateSuccessor(ghostindex,action),depth-1,alpha,beta))#maximizamos        
+                else: # es un fantasma cualquiera, por lo tanto minimizamos
+                    bestValue = min(bestValue, MIN(state.generateSuccessor(ghostindex, action),depth,alpha,beta, ghostindex + 1))#seguimos a la misma profundidad
+                if bestValue < alpha: #podamos
+                        break
+                beta = min(beta,bestValue)
+            return bestValue
+
+
+        """To obtain the action without passing it in all min and max calls"""
+        bestAction = None
+        bestValue = -100000000
+        alpha = -1000000000000000000
+        beta = 100000000000000000
+        for action in gameState.getLegalActions(0): #para todas las acciones del estado
+            value = MIN(gameState.generateSuccessor(0,action),self.depth,alpha,beta,1)#minimo de la profundidad especificada y por todas las acciones
+            if bestValue < value: #guardamos mejor accion
+                bestValue = value
+                bestAction = action
+            alpha = max(alpha,bestValue)
+            if bestValue > beta: #si obtenemos un valor mayor que nuestra beta, podamos
+                break
+        return bestAction
         util.raiseNotDefined()
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -240,6 +313,30 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    pacmanActions = currentGameState.getLegalPacmanActions()
+    pacmanPos = currentGameState.getPacmanPosition()
+    foodList = currentGameState.getFood().asList()
+    ghostList = currentGameState.getGhostPositions()
+    capsules = currentGameState.getCapsules()
+
+
+    score = 0.0
+    minFood = 99999999
+    minGhost = 99999999
+    minCapsule = 99999999
+
+    for foodPos in foodList:
+        minFood = min(minFood,abs(util.manhattanDistance(pacmanPos,foodPos))) #distancia minima desde la proxima posicion al food mas cercano
+    for ghostPos in ghostList:
+        minGhost = min(minGhost,abs(util.manhattanDistance(pacmanPos,ghostPos)))
+    for capsule in capsules:
+        minCapsule = min(minCapsule,abs(util.manhattanDistance(pacmanPos,capsule))) 
+    if not minCapsule:
+        minCapsule = 1
+    score = (minGhost/minFood) + currentGameState.getScore() + (minGhost/minCapsule)
+
+    return score
+
     util.raiseNotDefined()
 
 # Abbreviation

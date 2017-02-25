@@ -62,7 +62,12 @@ def question3e():
 def question6():
     answerEpsilon = None
     answerLearningRate = None
-    return answerEpsilon, answerLearningRate
+    return 'NOT POSSIBLE'
+    """
+    It is not possible because if we take actions randomply ( e = 1 ) the probability to reach
+    the 10 points is (1/4)^5 wich is 1/1024 , really dificut to achive in 50 iterations => 50/1024 ~ 0.048 %.
+    So it doesn't matter the learning rate we take , if it is that difficult to discover the 10 points.
+    """
     # If not possible, return 'NOT POSSIBLE'
 
 if __name__ == '__main__':

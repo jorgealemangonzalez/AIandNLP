@@ -51,12 +51,12 @@ class ValueIterationAgent(ValueEstimationAgent):
           tmpValue = util.Counter() # same as the values, we only change in the final the values
           for state in self.mdp.getStates():
             maxV = -9999999
-            for action in self.mdp.getPossibleActions(state): #compute all the posible actions of the stats
+            for action in self.mdp.getPossibleActions(state): #compute all the posible actions of the state
               maxV = max(self.getQValue(state,action),maxV) #get the Qvalue of an state and a specific action
             if maxV == -9999999:
               maxV = 0
-            tmpValue[state]=maxV #store the value in out temporal array of values
-          self.values = tmpValue # asign in the final values the calculated values for this iteration
+            tmpValue[state]=maxV #store the value in out temporal array of values for every state the greatest value
+          self.values = tmpValue # asign in the self values the calculated values for this iteration
 
         #util.raiseNotDefined()
 
@@ -74,7 +74,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        #Formula of the sumatory for all the states extracted in Wikipedia for Markov Decision process
+        #Formula of the sumatory for all the states extracted in Wikipedia of Markov Decision process
         value = 0
         for nextState , probNextSate in self.mdp.getTransitionStatesAndProbs(state,action):
           value +=  probNextSate * ( self.mdp.getReward(state,action,nextState) + (self.discount*self.getValue(nextState) ) ) 
@@ -97,12 +97,12 @@ class ValueIterationAgent(ValueEstimationAgent):
         #we need to obtain the best policy,
         if self.mdp.isTerminal(state):
           return None
-        for action in self.mdp.getPossibleActions(state): #for all the actions o
-          qvalue = self.getQValue(state,action)
+        for action in self.mdp.getPossibleActions(state): #for all the actions in a specific state
+          qvalue = self.getQValue(state,action) #get qvalue of the state and diferents actions
           if qvalue > value:
             bestAction = action
             value = qvalue
-        return bestAction
+        return bestAction #return the best action
         util.raiseNotDefined()
 
     def getPolicy(self, state):

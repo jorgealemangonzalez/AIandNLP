@@ -30,26 +30,27 @@ using namespace std;
 int main(){
 	map<string,map<string,int> > table;
 	string name, gramClas;
-	map<string,long> moreUsed;
 	ifstream training ("corpus.txt");
+
+	long maxUse = -999999;
+  	string mostUsed;
 	if (training.is_open()){
+
+		map<string,long> moreUsed;
+		long uses;
 	    while(training >> name >> gramClas && name != " "){
 			table[name][gramClas]++; //conting the times
-			moreUsed[gramClas]++; //conting the gramclass 
+			uses = ++moreUsed[gramClas]; //conting the gramclass 
+			if(maxUse < uses){
+				maxUse = uses;
+				mostUsed = gramClas;
+			}
 		}
 	    training.close();
   	}else{
   		cout << "Error opening corpus file" << endl;
   	}
 
-  	long max = -999999;
-  	string mostUsed;
-  	for(map<string,long>::iterator it = moreUsed.begin() ; it != moreUsed.end() ; ++it){
-  		if((*it).second > max){
-  			mostUsed = (*it).first; //the most used gramClass
-  			max=(*it).second;
-  		}
-  	}
 #if	CREATELEXIC
   	ofstream lexic ("lexic.txt");
 	for( map<string, map<string,int> >::iterator ii=table.begin(); ii!=table.end(); ++ii){
@@ -71,14 +72,14 @@ int main(){
 	   	ofstream testguini (ss2.str().c_str());
 	   	while(testing >> name && name != " "){
 	   		string bestpredict;
-	   		int max = -99999;
+	   		int maxV = -99999;
 	   		map<string,int>::iterator i;
 	   		if(!table[name].size()){ //if it's empty the most used TODO Improve thiss
 	   			bestpredict = mostUsed;
 		   	}else{
 		   		for (i= table[name].begin() ; i != table[name].end() ; ++i){ //if word have more than one get the most used
-			   		if ((*i).second > max){
-			   			max = (*i).second;
+			   		if ((*i).second > maxV){
+			   			maxV = (*i).second;
 			   			bestpredict = (*i).first;
 			   		}
 			   	}

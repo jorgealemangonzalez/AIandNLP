@@ -1,25 +1,8 @@
 #include <iostream>
-#include <vector> // vectores
-#include <list>   // listas
 #include <map>    // diccionarios
-#include <algorithm>
-#include <utility> //make_pair
-#include <cmath>
-#include <set>
 #include <sstream>
 #include <string>
 #include <fstream>
-
-
-#define X first
-#define Y second
-#define LI long long
-#define MP make_pair
-#define PB push_back
-#define SZ size()
-#define SQ(a) ((a)*(a))
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#define MIN(a,b) ((a)<(b)?(a):(b))
 
 using namespace std;
 
@@ -28,18 +11,17 @@ using namespace std;
 #define CALCULATEDIFERENCE 1
 
 int main(){
-	map<string,map<string,int> > table;
+	map<string,map<string,int> > table; //map for word and submap for every gramatic class of each word
 	string name, gramClas;
 	ifstream training ("corpus.txt");
 
 	long maxUse = -999999;
-  	string mostUsed;
+  	string mostUsed; //mostUsed gramatic Class
 	if (training.is_open()){
-
 		map<string,long> moreUsed;
 		long uses;
 	    while(training >> name >> gramClas && name != " "){
-			table[name][gramClas]++; //conting the times
+			table[name][gramClas]++; //count the times it's seen a specific word and specific grammar
 			uses = ++moreUsed[gramClas]; //conting the gramclass 
 			if(maxUse < uses){
 				maxUse = uses;
@@ -51,9 +33,9 @@ int main(){
   		cout << "Error opening corpus file" << endl;
   	}
 
-#if	CREATELEXIC
+#if	CREATELEXIC //defined at the beggining for creating the lexic.txt
   	ofstream lexic ("lexic.txt");
-	for( map<string, map<string,int> >::iterator ii=table.begin(); ii!=table.end(); ++ii){
+	for( map<string, map<string,int> >::iterator ii=table.begin(); ii!=table.end(); ++ii){ //iterate throw the maps
 	   for (map<string,int>::iterator i = table[(*ii).first].begin() ; i != table[(*ii).first].end() ; ++i){
 	   		lexic << (*ii).first << "\t" <<(*i).first << "\t" << (*i).second << endl; //storing in lexic.txt all information 
 	   }
@@ -62,36 +44,36 @@ int main(){
 #endif
 
 
-#if MAKETEST
+#if MAKETEST //defined at the beggining for creating the test.txt
    	for(int i = 1 ; i <=2 ; ++i){
    		stringstream ss1,ss2;
    		string read,out;
    		ss1 << "test_" << i << ".txt";
    		ss2 << "our_test_" << i << ".txt";
-	   	ifstream testing (ss1.str().c_str());
-	   	ofstream testguini (ss2.str().c_str());
-	   	while(testing >> name && name != " "){
+	   	ifstream testinginp (ss1.str().c_str());
+	   	ofstream testingout (ss2.str().c_str());
+	   	while(testinginp >> name && name != " "){
 	   		string bestpredict;
 	   		int maxV = -99999;
 	   		map<string,int>::iterator i;
-	   		if(!table[name].size()){ //if it's empty the most used TODO Improve thiss
+	   		if(!table[name].size()){ //if it's empty we assign the most used gramClass
 	   			bestpredict = mostUsed;
 		   	}else{
 		   		for (i= table[name].begin() ; i != table[name].end() ; ++i){ //if word have more than one get the most used
 			   		if ((*i).second > maxV){
 			   			maxV = (*i).second;
-			   			bestpredict = (*i).first;
+			   			bestpredict = (*i).first; //get the betpredit based in the number of times we had seen in the corpus
 			   		}
 			   	}
 		   	}
-		   	testguini << name << "\t" << bestpredict<<endl;
+		   	testingout << name << "\t" << bestpredict<<endl;
 	   	}
-	   	testing.close();
-	   	testguini.close();
+	   	testinginp.close();
+	   	testingout.close();
    	}
 #endif
 
-#if CALCULATEDIFERENCE
+#if CALCULATEDIFERENCE //calculate the difference between out test and the real values of the word
    	for(int i = 1 ; i <= 2 ; ++i){
    		float cont = 0;
    		float total=0;
@@ -103,10 +85,10 @@ int main(){
 		ifstream gold(ss2.str().c_str());
 		while(gold >> name1 >> gramClas1 && name != " "){ //comparing the two files
 			our >> name2 >> gramClas2;
-			total++;
-			if(gramClas1 == gramClas2)cont++;
+			total++; //number of word of every file
+			if(gramClas1 == gramClas2)cont++;//number of matches
 		}
-		cout << "Accuracy of test " << i << " it's : "<< ((float)cont/total)*100 << "% percentage " << endl;
+		cout << "Accuracy of test " << i << " it's : "<< ((float)cont/total)*100 << "% percentage " << endl; //calculate the accuracy
 		our.close();
 		gold.close();
    	}

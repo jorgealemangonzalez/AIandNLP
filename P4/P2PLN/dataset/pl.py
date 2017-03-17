@@ -10,8 +10,11 @@ sys.setdefaultencoding("utf-8")
 
 N = 50
 
+if __name__=="main":
+    mostFreqWord()
 
 class SearchMostUsed:
+
     fdist = "".encode('utf-8')
     for filename in glob.glob('*_*'):
         fp = open(filename,"r",errors='ignore',encoding='utf-8')
@@ -21,20 +24,30 @@ class SearchMostUsed:
     words = tokenize.word_tokenize(fdist.decode('utf-8'))
     mostFreq = FreqDist(words).most_common(N)
 
-    
     #contar cuantas vegades surt cada paraula per text
     listCounter = {}
     fw = open("data.arff","wb");
-    fw.write("@RELATION  Words\n\n@ATTRIBUTE word     string\n@ATTRIBUTE file     string\n@ATTRIBUTE Freq.    NUMERIC\n")
-    fw.write("\n@DATA\n")
+    fw.write("@RELATION  Words\n\n")
+    for attribut in mostFreq:
+        fw.write("@attribute \""+attribut[0]+"\" REAL" + "\n")
+    fw.write("@attribute 'genero' {female,male}\n")
+    fw.write("@data\n")
     for filename in glob.glob('*_*'):
         fp = open(filename,"r",errors='ignore',encoding='utf-8')
         text = str(fp.read())
         words = tokenize.word_tokenize(text.decode('utf-8'))
         fd = FreqDist(words)
+        listCounter[(filename)] = []
         for element in mostFreq:
-            counter = fd.freq(element[0])
-            listCounter[(element,filename)] = counter
-            fw.write("\""+element[0]+"\""+","+filename+","+str(counter)+"\n")
-    
-    
+            listCounter[(filename)].append(fd.freq(element[0]))
+
+
+    #crear fitxer arff
+
+    for filename in listCounter:
+        a = filename
+        a = a.split("_")[1]
+        p = str(listCounter[(filename)])
+        p = p.split("[")[1]
+        p = p.split("]")[0]
+        fw.write( p +"," +a + "\n")

@@ -17,7 +17,7 @@ class FeaturesVectorInArff:
         #Config nltk
         nltk.download('punkt')
 
-    def generate(self):
+    def generate(self, output_file='data.arff'):
         #Extract the n_tokens most used in full dataset
         words_extract = FrequentWordsExtractor(self.n_tokens)
         most_freq = words_extract.extract(self.files_path)
@@ -27,7 +27,7 @@ class FeaturesVectorInArff:
         bag = BagOfWords()
         freq_vec_extractor = FrequencyVectorExtractor(most_freq)
         for file_name in glob.glob(self.files_path):
-            bag.add(file_name,freq_vec_extractor.extract(file_name))
+            bag.add(key = file_name , value = freq_vec_extractor.extract(file_name))
 
         #crear fitxer arff
-        bag.writeInArff(most_freq)
+        bag.writeInArff(most_freq, file_name=output_file)

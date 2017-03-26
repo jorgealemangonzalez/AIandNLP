@@ -11,7 +11,7 @@ sys.setdefaultencoding("utf-8")
 class FeaturesVectorInArff:
     def __init__(self, tokens=50, files_path = 'dataset/*_*'):
 
-        self.n_tokens = 50
+        self.n_tokens = tokens
         self.files_path = files_path
 
         #Config nltk
